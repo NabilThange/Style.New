@@ -4,12 +4,15 @@ import { Button } from './Button';
 import { generateOutfitImage } from '../services/geminiService';
 import { ChevronLeft, ChevronRight, Wand2, Loader2, Share2, AlertCircle, Crown, Zap, User } from 'lucide-react';
 
+
 interface OutfitMixerProps {
   items: WardrobeItem[];
   outfits: Outfit[];
   onAddOutfit: (outfit: Outfit) => void;
   onUpdateOutfit: (id: string, updates: Partial<Outfit>) => void;
   initialModel?: string;
+  apiKey: string;
+  onOpenApiKeyModal: () => void;
 }
 
 export const OutfitMixer: React.FC<OutfitMixerProps> = ({
@@ -17,7 +20,9 @@ export const OutfitMixer: React.FC<OutfitMixerProps> = ({
   outfits,
   onAddOutfit,
   onUpdateOutfit,
-  initialModel = 'gemini-2.5-flash-image'
+  initialModel = 'gemini-2.5-flash-image',
+  apiKey,
+  onOpenApiKeyModal
 }) => {
   const [selectedPersonId, setSelectedPersonId] = useState<string>('');
   const [selectedModel, setSelectedModel] = useState<string>(initialModel);
@@ -55,6 +60,12 @@ export const OutfitMixer: React.FC<OutfitMixerProps> = ({
 
   const handleGenerate = async () => {
     if (!currentPerson || !currentUpper || !currentLower) return;
+
+    if (!apiKey) {
+      onOpenApiKeyModal();
+      return;
+    }
+
     const newId = crypto.randomUUID();
     const newOutfit: Outfit = {
       id: newId,
@@ -68,7 +79,7 @@ export const OutfitMixer: React.FC<OutfitMixerProps> = ({
     onAddOutfit(newOutfit);
     setIsGenerating(true);
     try {
-      const generatedImage = await generateOutfitImage(currentPerson, currentUpper, currentLower, selectedModel);
+      const generatedImage = await generateOutfitImage(apiKey, currentPerson, currentUpper, currentLower, selectedModel);
       onUpdateOutfit(newId, { status: 'completed', generatedImage });
     } catch (error) {
       console.error("Generation failed", error);

@@ -43,6 +43,7 @@ const resolveImageBase64 = async (data: string): Promise<string> => {
 };
 
 export const generateOutfitImage = async (
+  apiKey: string,
   person: WardrobeItem,
   upper: WardrobeItem,
   lower: WardrobeItem,
@@ -50,7 +51,7 @@ export const generateOutfitImage = async (
   imageSize: ImageSize = '1K'
 ): Promise<string> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
 
     // Resolve all images to base64
     const [personB64, upperB64, lowerB64] = await Promise.all([
@@ -140,11 +141,12 @@ export const generateOutfitImage = async (
 };
 
 export const editWardrobeImage = async (
-  item: WardrobeItem, 
+  apiKey: string,
+  item: WardrobeItem,
   prompt: string
 ): Promise<string> => {
   try {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey });
     const imageB64 = await resolveImageBase64(item.imageData);
 
     const imagePart = {

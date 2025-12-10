@@ -6,6 +6,8 @@ import { OutfitGenerator } from './components/OutfitGenerator';
 import { OutfitMixer } from './components/OutfitMixer';
 import { OutfitGallery } from './components/OutfitGallery';
 import { LandingPage } from './components/LandingPage';
+import { ApiKeyModal } from './components/ApiKeyModal';
+import { ApiKeyWarningPill } from './components/ApiKeyWarningPill';
 import { ScreenState, WardrobeItem, Outfit, ItemType } from './types';
 
 // Default items for quick start
@@ -53,12 +55,30 @@ const DEFAULT_WARDROBE: WardrobeItem[] = [
 ];
 
 const App: React.FC = () => {
+
   const [activeScreen, setActiveScreen] = useState<ScreenState>('landing');
   const [preferredModel, setPreferredModel] = useState<string>('gemini-2.5-flash-image');
+
+  // API Key State
+  const [apiKey, setApiKey] = useState<string>(() => localStorage.getItem('GEMINI_API_KEY') || '');
+  const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(() => !localStorage.getItem('GEMINI_API_KEY'));
+  const [hasSkipped, setHasSkipped] = useState(false);
 
   // App State - Initialized with Defaults
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>(DEFAULT_WARDROBE);
   const [outfits, setOutfits] = useState<Outfit[]>([]);
+
+  const handleSaveApiKey = (key: string) => {
+    localStorage.setItem('GEMINI_API_KEY', key);
+    setApiKey(key);
+    setShowApiKeyModal(false);
+    setHasSkipped(false);
+  };
+
+  const handleSkipApiKey = () => {
+    setShowApiKeyModal(false);
+    setHasSkipped(true);
+  };
 
   const handleAddItem = (item: WardrobeItem) => {
     setWardrobeItems(prev => [...prev, item]);
@@ -109,6 +129,8 @@ const App: React.FC = () => {
             onAddOutfit={handleAddOutfit}
             onUpdateOutfit={handleUpdateOutfit}
             initialModel={preferredModel}
+            apiKey={apiKey}
+            onOpenApiKeyModal={() => setShowApiKeyModal(true)}
           />
         );
       case 'generator':
@@ -119,6 +141,8 @@ const App: React.FC = () => {
             onAddOutfit={handleAddOutfit}
             onUpdateOutfit={handleUpdateOutfit}
             initialModel={preferredModel}
+            apiKey={apiKey}
+            onOpenApiKeyModal={() => setShowApiKeyModal(true)}
           />
         );
       case 'gallery':
@@ -137,10 +161,23 @@ const App: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between py-3 border-b">
                 <span className="text-gray-700">Google API Status</span>
-                <span className="text-sm text-green-600 font-medium flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                  Ready
-                </span>
+                {apiKey ? (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-green-600 font-medium flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                      Connected
+                    </span>
+                    <button onClick={() => setShowApiKeyModal(true)} className="text-xs text-blue-600 hover:underline">Change</button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-red-500 font-medium flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                      Missing Key
+                    </span>
+                    <button onClick={() => setShowApiKeyModal(true)} className="text-xs text-blue-600 hover:underline">Add Key</button>
+                  </div>
+                )}
               </div>
               <div className="flex items-center justify-between py-3 border-b">
                 <span className="text-gray-700">Clear All Data</span>
@@ -157,7 +194,7 @@ const App: React.FC = () => {
                 </button>
               </div>
               <p className="text-xs text-gray-400 mt-4">
-                StyleSync v1.3 • Powered by Gemini
+                Style v1.3 • Powered by Gemini
               </p>
             </div>
           </div>
@@ -169,6 +206,12 @@ const App: React.FC = () => {
 
   return (
     <HashRouter>
+      {showApiKeyModal && (
+        <ApiKeyModal onSave={handleSaveApiKey} onSkip={handleSkipApiKey} />
+      )}
+      {!apiKey && hasSkipped && !showApiKeyModal && (
+        <ApiKeyWarningPill onOpenModal={() => setShowApiKeyModal(true)} />
+      )}
       <Layout activeScreen={activeScreen} onNavigate={setActiveScreen}>
         {/* Desktop Sidebar Adjuster Wrapper removed - Layout handles flex */}
         {renderScreen()}
