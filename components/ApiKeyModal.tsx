@@ -63,9 +63,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSave, onSkip }) => {
                                 <ExternalLink className="w-4 h-4" />
                             </div>
                             <div className="text-xs space-y-1">
-                                <p className="font-bold">Don't have a key?</p>
+                                <p className="font-bold">Instead Visit Us on Google AI Studio</p>
                                 <p className="opacity-80 leading-relaxed">
-                                    Get one for free at Google AI Studio. It only takes a few seconds.
+                                    Use Style for free in Google AI Studio.
                                 </p>
                                 <a
                                     href="https://aistudio.google.com/apps/drive/1iPHoSyJtDL7EoTInH-VPTadYK0RPZRrk?fullscreenApplet=true"
@@ -73,7 +73,7 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ onSave, onSkip }) => {
                                     rel="noopener noreferrer"
                                     className="inline-block mt-2 font-bold underline hover:text-blue-700"
                                 >
-                                    Get Free API Key &rarr;
+                                    Visit Style &rarr;
                                 </a>
                             </div>
                         </div>
